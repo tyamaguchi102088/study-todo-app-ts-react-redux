@@ -1,11 +1,22 @@
 import { Reducer } from 'redux';
 
-import { IAddTodoAction, TodoAction, TodoActionType } from '../actions/todoActions';
+import { 
+  ISuccessAddTodoAction,
+  IFailAddTodoAction,
+  ISuccessFetchTodoAction,
+  IFailFetchTodoAction,
+  TodoAction,
+  TodoActionType
+} from '../actions/todoActions';
 import { ITodoState } from '../stores/todoStore';
 
 //IRootStateの初期データを作成
 const initTodoState : ITodoState = {
-  todos: []
+  todos: [],
+  error: {
+    message: ""
+  },
+  loading: false
 }
 
 //Todoで発生するactionに対してReduxのStateを返すReducerを作成
@@ -15,13 +26,44 @@ const todoReducer: Reducer<ITodoState> = (
 ): ITodoState => {
   //関数の引数として渡されて来たactionのtypeを見てReduxのStateを返す
   switch (action.type) {
-    case TodoActionType.ADD_TODO:
-      const addTodoAction: IAddTodoAction = action;
-      // ADD_TODOの場合はactionのpayloadに新しいtodoが詰められているので
-      // それを取り出してtodosに追加して新しいstateとして返す
+    case TodoActionType.FETCH_TODO_SUCCESS:
+      const successFetchTodoAction: ISuccessFetchTodoAction = action;
       return {
         ...state,
-        todos: state.todos.concat([addTodoAction.payload.todo])
+        todos: successFetchTodoAction.payload.todos,
+        loading: false
+      }
+
+    case TodoActionType.FETCH_TODO_FAIL:
+      const failFetchTodoAction: IFailFetchTodoAction = action;
+
+      return {
+        ...state,
+        todos: [],
+        error: {
+          message: failFetchTodoAction.error.message
+        },
+        loading: false
+      }
+
+    case TodoActionType.ADD_TODO_SUCCESS:
+      const successAddTodoAction: ISuccessAddTodoAction = action;
+      return {
+        ...state,
+        todos: state.todos.concat(successAddTodoAction.payload.todos),
+        loading: false
+      }
+
+    case TodoActionType.ADD_TODO_FAIL:
+      const failAddTodoAction: IFailAddTodoAction = action;
+      
+      return {
+        ...state,
+        todos: [],
+        error: {
+          message: failAddTodoAction.error.message
+        },
+        loading: false
       }
 
     default:

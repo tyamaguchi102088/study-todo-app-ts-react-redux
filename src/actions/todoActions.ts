@@ -1,35 +1,123 @@
 // reduxで定義されているAction interfaceだけimport
 import { Action } from 'redux';
 
+import { ITodos } from '../stores/TodoStore';
+import { ICreateTodoData } from '../types'
+
 // reduxのActionとして判別するための識別子をenumとして定義
 export enum TodoActionType {
-  ADD_TODO = 'ADD_TODO'
+  FETCH_TODO_REQUEST = 'FETCH_TODO_REQUEST',
+  FETCH_TODO_SUCCESS = 'FETCH_TODO_SUCCESS',
+  FETCH_TODO_FAIL = 'FETCH_TODO_FAIL',
+  ADD_TODO_REQUEST = 'ADD_TODO_REQUEST',
+  ADD_TODO_SUCCESS = 'ADD_TODO_SUCCESS',
+  ADD_TODO_FAIL = 'ADD_TODO_FAIL',
 }
 
-// Todoを追加するActionとして、Actionを継承したinterfaceを定義
-// 追加するPayloadの情報も同時に持つ
-export interface IAddTodoAction extends Action {
-  type: TodoActionType.ADD_TODO;
+export interface IRequestFetchTodoAction extends Action {
+  type: TodoActionType.FETCH_TODO_REQUEST;
+}
+export interface ISuccessFetchTodoAction extends Action {
+  type: TodoActionType.FETCH_TODO_SUCCESS;
   payload: {
-    todo: string
+    todos: ITodos[]
+  }
+}
+export interface IFailFetchTodoAction extends Action {
+  type: TodoActionType.FETCH_TODO_FAIL;
+  error: {
+    message: string
+  };
+}
+
+export interface IRequestAddTodoAction extends Action {
+  type: TodoActionType.ADD_TODO_REQUEST;
+  payload: {
+    todo: ICreateTodoData
+  };
+}
+
+export interface ISuccessAddTodoAction extends Action {
+  type: TodoActionType.ADD_TODO_SUCCESS;
+  payload: {
+    todos: ITodos[]
+  };
+}
+
+export interface IFailAddTodoAction extends Action {
+  type: TodoActionType.ADD_TODO_FAIL;
+  error: {
+    message: string
   };
 }
 
 // Actionを表現したinterfaceを一つの型として取り扱うためにTodoAction型を定義
-export type TodoAction = IAddTodoAction;
+export type TodoAction = 
+  IRequestFetchTodoAction |
+  ISuccessFetchTodoAction |
+  IFailFetchTodoAction |
+  IRequestAddTodoAction |
+  ISuccessAddTodoAction |
+  IFailAddTodoAction;
 
 // 定義したActionのinterfaceを作成するCreatorのinterfaceを定義
 export interface ITodoActionCreator {
-  addTodoAction(todo: string): IAddTodoAction
+  requestFetchTodoAction(): IRequestFetchTodoAction;
+  successFetchTodoAction(todos: ITodos[]): ISuccessFetchTodoAction;
+  failFetchTodoAction(error: { message: string }): IFailFetchTodoAction;
+  requestAddTodoAction(todo: string): IRequestAddTodoAction;
+  successAddTodoAction(todos: ITodos[]): ISuccessAddTodoAction;
+  failAddTodoAction(error: { message: string }): IFailAddTodoAction;
 }
 
-// 定義したCreatorの実装を定義(exportをつけてないので外からは見えない)
 class TodoActionCreator implements ITodoActionCreator {
-  public addTodoAction = (todo: string): IAddTodoAction => {
+  public requestAddTodoAction = (todo: ICreateTodoData): IRequestAddTodoAction => {
     return {
-      type: TodoActionType.ADD_TODO,
+      type: TodoActionType.ADD_TODO_REQUEST,
       payload: {
         todo
+      }
+    }
+  }
+
+  public successAddTodoAction = (todos: ITodos[]): ISuccessAddTodoAction => {
+    return {
+      type: TodoActionType.ADD_TODO_SUCCESS,
+      payload: {
+        todos
+      }
+    }
+  }
+
+  public failAddTodoAction = (message): IFailAddTodoAction => {
+    return {
+      type: TodoActionType.ADD_TODO_FAIL,
+      error: {
+        message
+      }
+    }
+  }
+
+  public requestFetchTodoAction = (): IRequestFetchTodoAction => {
+    return {
+      type: TodoActionType.FETCH_TODO_REQUEST
+    }
+  }
+
+  public successFetchTodoAction = (todos: ITodos[]): ISuccessFetchTodoAction => {
+    return {
+      type: TodoActionType.FETCH_TODO_SUCCESS,
+      payload: {
+        todos
+      }
+    }
+  }
+
+  public failFetchTodoAction = (message): IFailFetchTodoAction => {
+    return {
+      type: TodoActionType.FETCH_TODO_FAIL,
+      error: {
+        message
       }
     }
   }
